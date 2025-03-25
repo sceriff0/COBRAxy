@@ -14,7 +14,7 @@ from PIL import Image
 import os
 import argparse
 import pyvips
-from typing import Tuple, Union, Optional, List, Dict
+from typing import Tuple, Union, Optional, List, Dict, Literal
 import copy
 
 ERRORS = []
@@ -50,6 +50,12 @@ def process_args(args:List[str] = None) -> argparse.Namespace:
         type = str, 
         default = '1vs1',
         choices = ['manyvsmany', 'onevsrest', 'onevsmany'])
+
+    parser.add_argument(
+        '-te', '--test',
+        type = str, 
+        default = 'ks',
+        choices = ['ks', 't', 'tp'])
     
     parser.add_argument(
         '-pv' ,'--pValue',
@@ -690,7 +696,7 @@ def temp_thingsInCommon(tmp :Dict[str, List[Union[float, FoldChange]]], core_map
     for reactId, enrichData in tmp.items(): tmp[reactId] = tuple(enrichData)
     applyRpsEnrichmentToMap(tmp, core_map, max_z_score)
 
-def computePValue(dataset1Data: List[float], dataset2Data: List[float]) -> Tuple[float, float]:
+def computePValue(dataset1Data: List[float], dataset2Data: List[float], typeOfTest: Literal["ks", "t", "tp"] = "ks") -> Tuple[float, float]:
     """
     Computes the statistical significance score (P-value) of the comparison between coherent data
     from two datasets. The data is supposed to, in both datasets:
@@ -701,14 +707,23 @@ def computePValue(dataset1Data: List[float], dataset2Data: List[float]) -> Tuple
     Args:
         dataset1Data : data from the 1st dataset.
         dataset2Data : data from the 2nd dataset.
+        typeOfTest : type of statistical test to be performed, either Kolmogorov-Smirnov (ks) or T-test (t), if paired (tp)
 
     Returns:
         tuple: (P-value, Z-score)
-            - P-value from a Kolmogorov-Smirnov test on the provided data.
+            - P-value from a statistical test on the provided data.
             - Z-score of the difference between means of the two datasets.
     """
-    # Perform Kolmogorov-Smirnov test
-    ks_statistic, p_value = st.ks_2samp(dataset1Data, dataset2Data)
+
+    if typeOfTest == "ks":
+        # Perform Kolmogorov-Smirnov test
+        _ , p_value = st.ks_2samp(dataset1Data, dataset2Data)
+    elif typeOfTest == "t":
+        # Perform T test (unpaired)
+        _ , p_value = st.ttest_ind(dataset1Data, dataset2Data)
+    elif typeOfTest == "tp":
+        # Perform T test (paired)
+        _ , p_value = st.ttest_rel(dataset1Data, dataset2Data)
     
     # Calculate means and standard deviations
     mean1 = np.mean(dataset1Data)
