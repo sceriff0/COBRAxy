@@ -1,0 +1,13 @@
+name: my_cobra_env
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12
+  - scipy=1.12.0
+  - matplotlib=3.8.4
+  - pyvips
+  - lxml
+  - pip
+  - pip:
+    - cobra
