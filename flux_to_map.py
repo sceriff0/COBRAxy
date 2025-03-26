@@ -846,7 +846,7 @@ def getDatasetValues(datasetPath :str, datasetName :str) -> Tuple[ClassPat, List
         Tuple[ClassPat, List[str]]: values and IDs extracted from the dataset
     """
     dataset = read_dataset(datasetPath, datasetName)
-    
+  
     # Ensure the first column is treated as the reaction name
     dataset = dataset.set_index(dataset.columns[0])
 

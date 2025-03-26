@@ -109,6 +109,7 @@ class FilePath():
         # TODO: this is an indication that the arguments SHOULD BE OF TYPE FilePath if they are filepaths, this ENSURES
         # their correctness when modifying the UI and avoids the pointless back-and-forth.
         result = re.search(r"^(?P<prefix>.*\/)?(?P<name>.*)\.(?P<ext>[^.]*)$", path)
+
         if not result or not result["name"] or not result["ext"]:
             raise PathErr(path, "cannot recognize folder structure or extension in path")
 

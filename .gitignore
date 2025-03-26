@@ -1,1 +1,5 @@
 __pycache__/
+test_data/
+log/log.txt
+result/*
+test.py
